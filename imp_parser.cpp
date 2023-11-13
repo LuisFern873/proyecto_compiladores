@@ -3,11 +3,11 @@
 #include "imp_parser.hh"
 
 
-const char* Token::token_names[35] = {
+const char* Token::token_names[37] = {
   "LPAREN" , "RPAREN", "PLUS", "MINUS", "MULT","DIV","EXP","LT","LTEQ","EQ",
   "NUM", "ID", "PRINT", "SEMICOLON", "COMMA", "ASSIGN", "CONDEXP", "IF", "THEN", "ELSE", "ENDIF", "WHILE", "DO",
   "ENDWHILE", "ERR", "END", "VAR" , "NOT", "TRUE", "FALSE", "AND", "OR"
-  "FOR", "COLON" , "ENDFOR" };
+  "FOR", "COLON" , "ENDFOR", "BREAK", "CONTINUE"};
 
 Token::Token(Type type):type(type) { lexema = ""; }
 
@@ -45,7 +45,8 @@ Scanner::Scanner(string s):input(s),first(0),current(0) {
   reserved["or"] = Token::OR;
   reserved["for"] = Token::FOR;
   reserved["endfor"] = Token::ENDFOR;
-  
+  reserved["break"] = Token::BREAK;
+  reserved["continue"] = Token::CONTINUE;
 }
 
 Token* Scanner::nextToken() {
@@ -313,6 +314,10 @@ Stm* Parser::parseStatement() {
     tb = parseBody();
     if (!match(Token::ENDFOR)) parserError("Esperaba ENDFOR en for");
     s = new ForStatement(var,e,e2,tb);
+  } else if (match(Token::BREAK)) {
+    s = new BreakStatement();
+  } else if (match(Token::CONTINUE)) {
+    s = new ContinueStatement();
   }
   else {
     cout << "No se encontro Statement" << endl;

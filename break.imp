@@ -1,0 +1,15 @@
+var int x, y;
+x = 10;
+y = 1;
+for i : y,x do
+    if 7 <= i then
+        continue
+    endif
+endfor;
+while (y < x) do
+    if 4 <= y then
+        break
+    endif;
+    print(y);
+    y = y + 1
+endwhile

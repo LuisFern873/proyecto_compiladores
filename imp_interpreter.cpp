@@ -7,6 +7,8 @@ int ImpInterpreter::interpret(Program* p) {
 }
 
 int ImpInterpreter::visit(Program* p) {
+  breaks = false;
+  continues = false;
   p->body->accept(this);
   return 0;
 }
@@ -40,6 +42,7 @@ int ImpInterpreter::visit(StatementList* s) {
   list<Stm*>::iterator it;
   for (it = s->slist.begin(); it != s->slist.end(); ++it) {
     (*it)->accept(this);
+    if (breaks or continues) break;  // salir 
   }
   return 0;
 }
@@ -75,8 +78,12 @@ int ImpInterpreter::visit(IfStatement* s) {
 int ImpInterpreter::visit(WhileStatement* s) {
  while (s->cond->accept(this)) {
     s->body->accept(this);
+    if (breaks) break;
+    if (continues) continue;
   }
- return 0;
+  breaks = false;
+  continues = false;
+  return 0;
 }
 
 int ImpInterpreter::visit(ForStatement* s) {
@@ -87,9 +94,23 @@ int ImpInterpreter::visit(ForStatement* s) {
   for (int i = n1; i <= n2; i++) {
     env.update(s->id,i);
     s->body->accept(this);
+    if (breaks) break;
+    if (continues) continue;
   }
+  breaks = false;
+  continues = false;
   env.remove_level();
  return 0;
+}
+
+int ImpInterpreter::visit(BreakStatement* s) {
+  breaks = true;
+  return 0;
+}
+
+int ImpInterpreter::visit(ContinueStatement*) {
+  continues = true;
+  return 0;
 }
 
 int ImpInterpreter::visit(BinaryExp* e) {

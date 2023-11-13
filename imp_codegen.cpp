@@ -149,6 +149,14 @@ int ImpCodeGen::visit(ForStatement* s) {
   return 0;
 }
 
+int ImpCodeGen::visit(BreakStatement* s) {
+  return 0;
+}
+
+int ImpCodeGen::visit(ContinueStatement* s) {
+  return 0;
+}
+
 int ImpCodeGen::visit(BinaryExp* e) {
   e->left->accept(this);
   e->right->accept(this);
