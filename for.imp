@@ -1,0 +1,10 @@
+var int x, y;
+x = 2;
+y = 5;
+for i : x,y * x do
+    var bool v, w;
+    v = true;
+    w = false;
+    print(i);
+    print(v)
+endfor

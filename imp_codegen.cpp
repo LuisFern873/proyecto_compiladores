@@ -123,6 +123,29 @@ int ImpCodeGen::visit(WhileStatement* s) {
 }
 
 int ImpCodeGen::visit(ForStatement* s) {
+  string l1 = next_label();
+  string l2 = next_label();
+
+  direcciones.add_var(s->id, siguiente_direccion++);
+
+  s->e1->accept(this);
+  codegen(nolabel,"store",direcciones.lookup(s->id));
+
+  codegen(l1,"skip");
+  codegen(nolabel,"load",direcciones.lookup(s->id));
+  s->e2->accept(this);
+  codegen(nolabel, "le");
+  codegen(nolabel,"jmpz",l2);
+
+  s->body->accept(this);
+  codegen(nolabel,"load",direcciones.lookup(s->id));
+  codegen(nolabel,"push", 1);
+  codegen(nolabel,"add");
+  codegen(nolabel,"store",direcciones.lookup(s->id));
+
+  codegen(nolabel,"goto",l1);
+  codegen(l2,"skip");
+
   return 0;
 }
 
@@ -138,6 +161,8 @@ int ImpCodeGen::visit(BinaryExp* e) {
   case LT:  op = "lt"; break;
   case LTEQ: op = "le"; break;
   case EQ:  op = "eq"; break;
+  case AND: op = "and"; break;
+  case OR: op = "or"; break;
   default: cout << "binop " << Exp::binopToString(e->op) << " not implemented" << endl;
   }
   codegen(nolabel, op);
@@ -164,11 +189,12 @@ int ImpCodeGen::visit(UnaryExp* e) {
 }
 
 int ImpCodeGen::visit(NumberExp* e) {
-  codegen(nolabel,"push ",e->value);
+  codegen(nolabel,"push",e->value);
   return 0;
 }
 
 int ImpCodeGen::visit(BoolConstExp* e) {
+  codegen(nolabel,"push",e->b ? 1 : 0);
   return 0;
 }
 
