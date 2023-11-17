@@ -1,0 +1,6 @@
+var int accum, x;// 
+x = 4;// sdsadsa
+accum = 0;// dsdsad
+while 0 < x do accum = accum + x; x = x - 1 endwhile;// sdsad
+print(x);// dasdasd
+print(accum)//sad

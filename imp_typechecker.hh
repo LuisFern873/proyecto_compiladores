@@ -28,6 +28,8 @@ public:
   void visit(PrintStatement*);
   void visit(IfStatement*);
   void visit(WhileStatement*);
+  void visit(DoWhileStatement*);  // DOwhile
+
   void visit(ForStatement*);
   void visit(BreakStatement*);
   void visit(ContinueStatement*);

@@ -24,6 +24,8 @@ public:
   int visit(PrintStatement*);
   int visit(IfStatement*);
   int visit(WhileStatement*);
+  int visit(DoWhileStatement*);
+
   int visit(ForStatement*);
   int visit(BreakStatement*);
   int visit(ContinueStatement*);

@@ -81,6 +81,18 @@ int ImpPrinter::visit(WhileStatement* s) {
   return 0;
 }
 
+
+int ImpPrinter::visit(DoWhileStatement* s) {
+  cout << "do" << endl;
+  s->body->accept(this);
+  cout << "while (";
+  s->condition->accept(this);
+  cout << ");" << endl;
+  return 0;
+}
+
+
+
 int ImpPrinter::visit(ForStatement* s) {
   cout << "for " << s->id << " : ";
   s->e1->accept(this);

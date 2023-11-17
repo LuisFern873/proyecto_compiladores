@@ -143,6 +143,25 @@ public:
   ~WhileStatement();
 };
 
+
+class DoWhileStatement : public Stm {
+public:
+    Exp* condition;
+    Body* body;
+    DoWhileStatement(Body* b, Exp* c);
+    int accept(ImpVisitor* v);
+    void accept(TypeVisitor* v);
+    ~DoWhileStatement();
+    /*
+    DoWhileStatement* clone() const {
+        return new DoWhileStatement(*this);
+    };
+    */
+
+};
+
+
+
 class ForStatement : public Stm {
 public:
   string id;

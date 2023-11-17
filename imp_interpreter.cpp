@@ -85,6 +85,31 @@ int ImpInterpreter::visit(WhileStatement* s) {
   continues = false;
   return 0;
 }
+int ImpInterpreter::visit(DoWhileStatement* s) {
+    do {
+
+        bool condition_result = s->condition->accept(this);
+
+        // verificar si el bucle se debe seguir ejecutando
+        if (condition_result) {
+            s->body->accept(this);//ejecutar cuerpo
+
+        } else {
+            break;
+        }
+
+    } while (true);
+
+    breaks = false;
+    continues = false;
+    return 0;
+}
+
+
+
+
+
+
 
 int ImpInterpreter::visit(ForStatement* s) {
   int n1 = s->e1->accept(this);

@@ -3,11 +3,11 @@
 #include "imp_parser.hh"
 
 
-const char* Token::token_names[37] = {
+const char* Token::token_names[38] = {
   "LPAREN" , "RPAREN", "PLUS", "MINUS", "MULT","DIV","EXP","LT","LTEQ","EQ",
   "NUM", "ID", "PRINT", "SEMICOLON", "COMMA", "ASSIGN", "CONDEXP", "IF", "THEN", "ELSE", "ENDIF", "WHILE", "DO",
   "ENDWHILE", "ERR", "END", "VAR" , "NOT", "TRUE", "FALSE", "AND", "OR"
-  "FOR", "COLON" , "ENDFOR", "BREAK", "CONTINUE"};
+  "FOR", "COLON" , "ENDFOR", "BREAK", "CONTINUE","SLASH"};
 
 Token::Token(Type type):type(type) { lexema = ""; }
 
@@ -47,6 +47,7 @@ Scanner::Scanner(string s):input(s),first(0),current(0) {
   reserved["endfor"] = Token::ENDFOR;
   reserved["break"] = Token::BREAK;
   reserved["continue"] = Token::CONTINUE;
+  reserved["slash"]=Token::SLASH;
 }
 
 Token* Scanner::nextToken() {
@@ -54,9 +55,24 @@ Token* Scanner::nextToken() {
   char c;
   // consume whitespaces
   c = nextChar();
-  while (c == ' ' || c == '\t'  || c == '\n') c = nextChar();
+  //while (c == ' ' || c == '\t'  || c == '\n') c = nextChar();
+  while (c == ' ' || c == '\t' || c == '\n' ) {
+    /*
+    if (c == '/') {// es comentario
+      c = nextChar();//
+      if (c == '/') {
+        // Comentario de una línea, ignorar hasta el final de la línea
+        while (c != '\n' && c != '\0') c = nextChar();
+        continue; // Continuar con la búsqueda de otros caracteres después del comentario
+      } else {
+        // No es un comentario, retroceder un carácter
+        rollBack();
+      }
+    }*/
+    c = nextChar();
+  }
   if (c == '\0') return new Token(Token::END);
-  startLexema();
+  startLexema();//start
   if (isdigit(c)) {
     c = nextChar();
     while (isdigit(c)) c = nextChar();
@@ -83,7 +99,22 @@ Token* Scanner::nextToken() {
       if (c == '*') token = new Token(Token::EXP);
       else { rollBack(); token = new Token(Token::MULT); }
       break;     
-    case '/': token = new Token(Token::DIV); break;
+    case '/':
+      c = nextChar(); 
+      if(c =='/'){  
+        c = nextChar(); 
+        while (c != '\n' && c != '\0') c = nextChar();//siempre y cuando no sea fin avanzalo, no interesa lo que es
+        rollBack();
+        token = new Token(Token::SLASH,getLexema());
+        
+      } 
+      else{ 
+    
+        rollBack(); 
+        token = new Token(Token::DIV);
+      } 
+      break;
+
     case ';': token = new Token(Token::SEMICOLON); break;
     case ',': token = new Token(Token::COMMA); break;
     case '!': token = new Token(Token::NOT); break;
@@ -105,6 +136,7 @@ Token* Scanner::nextToken() {
   }
   return token;
 }
+
 
 Scanner::~Scanner() { }
 
@@ -226,7 +258,8 @@ VarDec* Parser::parseVarDec() {
       vars.push_back(var);
     }
     if (!match(Token::SEMICOLON)) parserError("Expecting semicolon at end of var declaration");
-    vd = new VarDec(type,vars);
+    if (match(Token::SLASH));//NO HACER NADA
+    vd = new  VarDec(type,vars);
   }
   return vd;
 }
@@ -249,8 +282,11 @@ StatementList* Parser::parseStatementList() {
   StatementList* p = new StatementList();
   p->add(parseStatement());
   while(match(Token::SEMICOLON)) {
+    while(match(Token::SLASH));//cosumir todo hasta el final
     p->add(parseStatement());
   }
+  while(match(Token::SLASH));//cosumir todo hasta el final
+
   return p;
 }
 
@@ -258,18 +294,21 @@ StatementList* Parser::parseStatementList() {
   id = exp
   print(x)
  */
+
 Stm* Parser::parseStatement() {
   Stm* s = NULL;
   Exp* e;
   Body *tb, *fb;
+
   if (match(Token::ID)) {
     string lex = previous->lexema;
     if (!match(Token::ASSIGN)) {
       cout << "Error: esperaba =" << endl;
       exit(0);
     }
+   
     s = new AssignStatement(lex, parseExp());
-    //memoria_update(lex, v);
+    
   } else if (match(Token::PRINT)) {
     if (!match(Token::LPAREN)) {
       cout << "Error: esperaba ( " << endl;
@@ -284,24 +323,32 @@ Stm* Parser::parseStatement() {
   } else if (match(Token::IF)) {
       e = parseExp();
       if (!match(Token::THEN))
-	parserError("Esperaba 'then'");
+        parserError("Esperaba 'then'");
       tb = parseBody();
       fb = NULL;
       if (match(Token::ELSE)) {
-	fb = parseBody();
+        fb = parseBody();
       }
       if (!match(Token::ENDIF))
-	parserError("Esperaba 'endif'");
-      s = new IfStatement(e,tb,fb);
+        parserError("Esperaba 'endif'");
+      s = new IfStatement(e, tb, fb);
   } else if (match(Token::WHILE)) {
     e = parseExp();
     if (!match(Token::DO))
       parserError("Esperaba 'do'");
     tb = parseBody();
     if (!match(Token::ENDWHILE))
-	parserError("Esperaba 'endwhile'");
-    s = new WhileStatement(e,tb);
-  } else if (match(Token::FOR)) {
+      parserError("Esperaba 'endwhile'");
+    s = new WhileStatement(e, tb);
+  } else if (match(Token::DO)) {
+        tb = parseBody();
+        if (!match(Token::WHILE)) {
+            parserError("Esperaba 'while' después de 'do'");
+        } 
+        e = parseExp();
+
+        s = new DoWhileStatement(tb, e);
+    } else if (match(Token::FOR)) {
     string var;
     Exp* e2;
     if (!match(Token::ID)) parserError("Esperaba id en for");
@@ -313,11 +360,16 @@ Stm* Parser::parseStatement() {
     if (!match(Token::DO)) parserError("Esperaba DO en for");
     tb = parseBody();
     if (!match(Token::ENDFOR)) parserError("Esperaba ENDFOR en for");
-    s = new ForStatement(var,e,e2,tb);
-  } else if (match(Token::BREAK)) {
+    s = new ForStatement(var, e, e2, tb);
+  } 
+
+  else if (match(Token::BREAK)) {
     s = new BreakStatement();
   } else if (match(Token::CONTINUE)) {
     s = new ContinueStatement();
+  }
+  else if (match(Token::SLASH)){
+    advance(); // Avanzar al siguiente token
   }
   else {
     cout << "No se encontro Statement" << endl;
@@ -325,6 +377,9 @@ Stm* Parser::parseStatement() {
   }
   return s;
 }
+
+
+
 
 Exp* Parser::parseExp() {
   return parseBExp();

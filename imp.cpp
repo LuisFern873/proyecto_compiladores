@@ -101,6 +101,8 @@ AssignStatement::AssignStatement(string id, Exp* e):id(id), rhs(e) { }
 PrintStatement::PrintStatement(Exp* e):e(e) { }
 IfStatement::IfStatement(Exp* c,Body *tb, Body* fb):cond(c),tbody(tb), fbody(fb) { }
 WhileStatement::WhileStatement(Exp* c,Body *b):cond(c),body(b) { }
+DoWhileStatement::DoWhileStatement(Body* b, Exp* c) : body(b), condition(c) {}
+
 ForStatement::ForStatement(string id, Exp* e1,Exp* e2, Body *b):id(id),e1(e1),e2(e2), body(b) { }
 BreakStatement::BreakStatement() {}
 ContinueStatement::ContinueStatement() {}
@@ -116,6 +118,11 @@ AssignStatement::~AssignStatement() { delete rhs; }
 PrintStatement::~PrintStatement() { delete e; }
 IfStatement::~IfStatement() { delete fbody; delete tbody; delete cond; }
 WhileStatement::~WhileStatement() { delete body; delete cond; }
+DoWhileStatement::~DoWhileStatement() {
+    delete body;
+    delete condition;
+}
+
 ForStatement::~ForStatement() { delete body; delete e2; delete e1; }
 BreakStatement::~BreakStatement() {}
 ContinueStatement::~ContinueStatement() {}
@@ -174,6 +181,7 @@ int Body::accept(ImpVisitor* v) {
   return v->visit(this);
 }
 
+
 int Program::accept(ImpVisitor* v) {
   return v->visit(this);
 }
@@ -194,6 +202,18 @@ void IfStatement::accept(TypeVisitor* v) {
 void WhileStatement::accept(TypeVisitor* v) {
   return v->visit(this);
 }
+
+
+int DoWhileStatement::accept(ImpVisitor* v) {
+    return v->visit(this);
+}
+
+void DoWhileStatement::accept(TypeVisitor* v) {
+    return v->visit(this);
+}
+
+
+
 
 void ForStatement::accept(TypeVisitor* v) {
   return v->visit(this);

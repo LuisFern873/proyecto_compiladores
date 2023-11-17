@@ -69,6 +69,22 @@ public:
     v = ribs[idx][x];
     return true;
   }
+  // Método para crear una nueva variable
+  void create(const std::string& name, const T& value) {
+      add_var(name, value);
+  }
+
+  // Método para destruir una variable existente
+  void destroy(const std::string& name) {
+      for (int i = ribs.size() - 1; i >= 0; i--) {
+          auto it = ribs[i].find(name);
+          if (it != ribs[i].end()) {
+              ribs[i].erase(it);
+              break;  // Detenerse después de borrar la primera ocurrencia
+          }
+      }
+  }
+
 
 };
 
