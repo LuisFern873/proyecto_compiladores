@@ -4,11 +4,14 @@ y = 1;
 for i : y,x do
     if 7 <= i then
         continue
-    endif
+    endif;
+    print(i)
 endfor;
 while (y < x) do
     if 4 <= y then
-        break
+        print(y);
+        y = y + 1;
+        continue
     endif;
     print(y);
     y = y + 1

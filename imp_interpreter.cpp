@@ -76,15 +76,15 @@ int ImpInterpreter::visit(IfStatement* s) {
 }
 
 int ImpInterpreter::visit(WhileStatement* s) {
- while (s->cond->accept(this)) {
+  while (s->cond->accept(this)) {
     s->body->accept(this);
-    if (breaks) break;
-    if (continues) continue;
+    if (breaks) {  breaks = false; break; }
+    if (continues) {  continues = false; continue; }
   }
-  breaks = false;
-  continues = false;
+  
   return 0;
 }
+
 int ImpInterpreter::visit(DoWhileStatement* s) {
     do {
 
@@ -119,11 +119,10 @@ int ImpInterpreter::visit(ForStatement* s) {
   for (int i = n1; i <= n2; i++) {
     env.update(s->id,i);
     s->body->accept(this);
-    if (breaks) break;
-    if (continues) continue;
+    if (breaks) {  breaks = false; break; }
+    if (continues) {  continues = false; continue; }
   }
-  breaks = false;
-  continues = false;
+  
   env.remove_level();
  return 0;
 }

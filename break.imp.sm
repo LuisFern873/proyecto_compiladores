@@ -17,6 +17,8 @@ goto L3
 L2: skip
 L3: skip
 load 2
+print
+load 2
 push 1
 add
 store 2
@@ -31,6 +33,12 @@ push 4
 load 1
 le
 jmpz L6
+load 1
+print
+load 1
+push 1
+add
+store 1
 goto L7
 L6: skip
 L7: skip
