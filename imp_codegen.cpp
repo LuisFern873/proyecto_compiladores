@@ -127,14 +127,14 @@ int ImpCodeGen::visit(DoWhileStatement* s) {
   string l1 = next_label();
   string l2 = next_label();
 
-  codegen(l1, "skip");  // Etiqueta al inicio del bucle
+  codegen(l1, "skip");  //  inicio del bucle
   s->body->accept(this);  // Genera el código para el cuerpo
 
   s->condition->accept(this);  // Genera el código para la condición
-  codegen(nolabel, "jmpz", l2);  // Si la condición es falsa, salta al final
+  codegen(nolabel, "jmpz", l2);  // Si es falsa, muevete al final
 
   codegen(nolabel, "goto", l1);  // Vuelve al inicio del bucle
-  codegen(l2, "skip");  // Etiqueta al final del bucle
+  codegen(l2, "skip");  // indica fin
 
   return 0;
 }

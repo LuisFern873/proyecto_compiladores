@@ -1,6 +1,6 @@
-var int accum, x;// 
-x = 4;// sdsadsa
-accum = 0;// dsdsad
-while 0 < x do accum = accum + x; x = x - 1 endwhile;// sdsad
-print(x);// dasdasd
-print(accum)//sad
+var int accum, x;// prueba
+x = 4;// prueba1
+accum = 0;// prueba2
+while 0 < x do accum = accum + x; x = x - 1 endwhile;// prueba3
+print(x);// prueba4
+print(accum)//prueba5
