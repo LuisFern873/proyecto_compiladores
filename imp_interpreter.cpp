@@ -76,24 +76,25 @@ int ImpInterpreter::visit(IfStatement* s) {
 }
 
 int ImpInterpreter::visit(WhileStatement* s) {
-  while (s->cond->accept(this)) {
+ while (s->cond->accept(this)) {
     s->body->accept(this);
-    if (breaks) {  breaks = false; break; }
-    if (continues) {  continues = false; continue; }
+    if (breaks) break;
+    if (continues) continue;
   }
-  
+  breaks = false;
+  continues = false;
   return 0;
 }
 
 int ImpInterpreter::visit(DoWhileStatement* s) {
     do {
-
         bool condition_result = s->condition->accept(this);
 
         // verificar si el bucle se debe seguir ejecutando
         if (condition_result) {
-            s->body->accept(this);//ejecutar cuerpo
-
+            s->body->accept(this); // ejecutar cuerpo
+            if (breaks) break;
+            if (continues) continue;
         } else {
             break;
         }
@@ -111,6 +112,7 @@ int ImpInterpreter::visit(DoWhileStatement* s) {
 
 
 
+
 int ImpInterpreter::visit(ForStatement* s) {
   int n1 = s->e1->accept(this);
   int n2 = s->e2->accept(this);
@@ -119,10 +121,11 @@ int ImpInterpreter::visit(ForStatement* s) {
   for (int i = n1; i <= n2; i++) {
     env.update(s->id,i);
     s->body->accept(this);
-    if (breaks) {  breaks = false; break; }
-    if (continues) {  continues = false; continue; }
+    if (breaks) break;
+    if (continues) continue;
   }
-  
+  breaks = false;
+  continues = false;
   env.remove_level();
  return 0;
 }
