@@ -1,0 +1,8 @@
+var int n;
+n = 5;
+for i : 1,n do
+    for j : 1,n do
+        print(i);
+        print(j)
+    endfor
+endfor
